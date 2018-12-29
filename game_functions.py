@@ -1,22 +1,23 @@
 import sys
 import pygame
 from ship import Ship
+from bullet import Bullet
 
 
-def check_events(ship) -> None:
+def check_events(ai_settings, screen, ship, bullets) -> None:
     """Respond to key presses and mouse events"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
 
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, ship)
+            check_keydown_events(event, ai_settings, screen, ship, bullets)
 
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
 
 
-def check_keydown_events(event, ship) -> None:
+def check_keydown_events(event, ai_settings, screen, ship, bullets) -> None:
     """Respond to key presses"""
     if event.key == pygame.K_RIGHT:
         # Move ship to the right
@@ -24,6 +25,9 @@ def check_keydown_events(event, ship) -> None:
     elif event.key == pygame.K_LEFT:
         # Move ship to the left
         ship.moving_left = True
+    elif event.key == pygame.K_SPACE:
+        # Create a new bullet and add it to the group
+        fire_bullet(ai_settings, screen, ship, bullets)
 
 
 def check_keyup_events(event, ship) -> None:
@@ -34,11 +38,33 @@ def check_keyup_events(event, ship) -> None:
         ship.moving_left = False
 
 
-def update_screen(ai_settings, screen, ship) -> None:
+def update_screen(ai_settings, screen, ship, bullets) -> None:
     """Update images on the screen and flip to new screen"""
     # redraw the screen during each pass through loop
     screen.fill(ai_settings.bg_color)
+
+    # redraw all bullets behind ship and aliens
+    for bullet in bullets.sprites():
+        bullet.draw_bullet()
+
     ship.blitme()
 
     # make the most recently drawn screen visible
     pygame.display.flip()
+
+
+def update_bullets(bullets) -> None:
+    """Update the positions of bullets and remove old bullets"""
+    bullets.update()
+
+    # Get rid of bullets that have disappeared
+    for bullet in bullets.copy():
+        if bullet.rect.bottom <= 0:
+            bullets.remove(bullet)
+
+
+def fire_bullet(ai_settings, screen, ship, bullets) -> None:
+    """Fires bullet if limit not reached"""
+    if len(bullets) < ai_settings.bullets_allowed:
+        new_bullet = Bullet(ai_settings, screen, ship)
+        bullets.add(new_bullet)
