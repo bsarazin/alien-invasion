@@ -74,19 +74,47 @@ def fire_bullet(ai_settings, screen, ship, bullets) -> None:
         bullets.add(new_bullet)
 
 
-def create_fleet(ai_settings, screen, aliens) -> None:
+def create_fleet(ai_settings, screen, ship, aliens) -> None:
     """Create a shit ton of aliens"""
     # Create an alien and find the number of aliens in a row
     # Spacing between each alien is equal to one alien
     alien = Alien(ai_settings, screen)
+    number_aliens_x = get_number_aliens_x(ai_settings, alien)
+    number_aliens_y = get_number_aliens_y(ai_settings, ship, alien)
+
+    # Create a fleet of aliens
+    for row_number in range(number_aliens_y):
+        for alien_number in range(number_aliens_x):
+            create_alien(ai_settings, screen, aliens, alien_number, row_number)
+
+
+def get_number_aliens_x(ai_settings, alien) -> int:
+    """Determine the number of aliens that fit in a row"""
     alien_width = alien.rect.width
     available_space_x = ai_settings.screen_width - (2 * alien_width)
     number_aliens_x = int(available_space_x / (2 * alien_width))
+    return number_aliens_x
 
-    # Create the first row of aliens
-    for alien_number in range(number_aliens_x):
-        # Create an alien and place it in the row
-        alien = Alien(ai_settings, screen)
-        alien.x = alien_width + 2 * alien_width * alien_number
-        alien.rect.x = alien.x
-        aliens.add(alien)
+
+def get_number_aliens_y(ai_settings, ship, alien) -> int:
+    """Determine the number of rows of aliens"""
+    alien_height = alien.rect.height
+    ship_height = ship.rect.height
+    available_space_y = (ai_settings.screen_height -
+                         (3 * alien_height) - ship_height)
+    number_aliens_y = int(available_space_y / (2 * alien_height))
+    return number_aliens_y
+
+
+def create_alien(ai_settings, screen, aliens, alien_number, row_number) -> None:
+    """Create a fleet of aliens"""
+    # Create an alien and place it in the row
+    alien = Alien(ai_settings, screen)
+    alien_width = alien.rect.width
+    alien_height = alien.rect.height
+    alien.x = alien_width + 2 * alien_width * alien_number
+    alien.y = alien_height + 2 * alien_height * row_number
+    alien.rect.x = alien.x
+    alien.rect.y = alien.y
+    print('alien-', alien.x, ',', alien.y)
+    aliens.add(alien)
