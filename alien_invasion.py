@@ -5,6 +5,7 @@ from ship import Ship
 import game_functions
 from game_stats import GameStats
 from button import Button
+from scoreboard import Scoreboard
 
 
 def run_game():
@@ -19,6 +20,7 @@ def run_game():
 
     # create a statistics instance to store game stats
     stats = GameStats(ai_settings)
+    scoreboard = Scoreboard(ai_settings, screen, stats)
 
     # create a Ship object, make groups to store bullets, aliens
     ship = Ship(ai_settings, screen)
@@ -31,17 +33,17 @@ def run_game():
     # start the main loop
     while True:
         game_functions.check_events(
-            ai_settings, screen, stats, play_button, ship, aliens, bullets)
+            ai_settings, screen, stats, scoreboard, play_button, ship, aliens, bullets)
 
         if stats.game_active:
             ship.update()
             game_functions.update_bullets(
-                ai_settings, screen, ship, aliens, bullets)
+                ai_settings, screen, stats, scoreboard, ship, aliens, bullets)
             game_functions.update_aliens(
-                ai_settings, stats, screen, ship, aliens, bullets)
+                ai_settings, stats, screen, scoreboard, ship, aliens, bullets)
 
         game_functions.update_screen(
-            ai_settings, screen, stats, ship, aliens, bullets, play_button)
+            ai_settings, screen, stats, scoreboard, ship, aliens, bullets, play_button)
 
 
 run_game()
